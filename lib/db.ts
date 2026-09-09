@@ -236,4 +236,11 @@ export const db = {
   async getAdmin() {
     return prisma.adminUser.findFirst();
   },
+
+  async updateAdminPassword(email: string, newPasswordHash: string) {
+    return prisma.adminUser.update({
+      where: { email },
+      data: { passwordHash: newPasswordHash },
+    });
+  },
 };

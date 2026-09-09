@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
-import { verifyPassword, signSessionToken } from '@/lib/crypto';
+import { verifyPassword, hashPassword, signSessionToken } from '@/lib/crypto';
 import { checkRateLimit, recordFailedAttempt, clearRateLimit } from '@/lib/rate-limit';
 
 export async function POST(req: NextRequest) {
@@ -67,6 +67,51 @@ export async function POST(req: NextRequest) {
     console.error('Erro no login admin:', error);
     return NextResponse.json(
       { error: 'Erro interno no servidor.' },
+      { status: 500 }
+    );
+  }
+}
+
+export async function PUT(req: NextRequest) {
+  try {
+    const { currentPassword, newPassword } = await req.json();
+
+    if (!newPassword || newPassword.length < 6) {
+      return NextResponse.json(
+        { error: 'A nova senha deve conter no mínimo 6 caracteres.' },
+        { status: 400 }
+      );
+    }
+
+    const admin = await db.getAdmin();
+    if (!admin) {
+      return NextResponse.json(
+        { error: 'Administrador não encontrado.' },
+        { status: 404 }
+      );
+    }
+
+    // Valida a senha atual
+    const isCurrentMatch = await verifyPassword(currentPassword || '', admin.passwordHash);
+    if (!isCurrentMatch) {
+      return NextResponse.json(
+        { error: 'A senha atual informada está incorreta.' },
+        { status: 400 }
+      );
+    }
+
+    // Gera novo hash com bcrypt e atualiza no PostgreSQL
+    const newHash = await hashPassword(newPassword);
+    await db.updateAdminPassword(admin.email, newHash);
+
+    return NextResponse.json({
+      success: true,
+      message: 'Senha administrativa alterada com sucesso!',
+    });
+  } catch (error) {
+    console.error('Erro ao atualizar senha admin:', error);
+    return NextResponse.json(
+      { error: 'Erro interno ao atualizar a senha.' },
       { status: 500 }
     );
   }
