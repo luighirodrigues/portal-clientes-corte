@@ -1,0 +1,63 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model AdminUser {
+  id           String   @id @default(uuid())
+  email        String   @unique
+  passwordHash String
+  name         String   @default("Equipe Corte da Rainha")
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model Client {
+  id           String      @id @default(uuid())
+  nome         String
+  slug         String      @unique
+  pinHash      String      // Hash bcrypt para verificação segura
+  pinEncrypted String      // Criptografia AES-256 para exibição segura apenas no painel admin
+  whatsapp     String?
+  fotoPerfil   String?
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+  deliveries   Delivery[]
+  accessLogs   AccessLog[]
+}
+
+model Delivery {
+  id            String    @id @default(uuid())
+  clienteId     String
+  cliente       Client    @relation(fields: [clienteId], references: [id], onDelete: Cascade)
+  data          String
+  videos        String    @default("0")
+  fotos         String    @default("0")
+  horas         String    @default("2h")
+  fotoCapa      String?
+  linkDrive     String
+  frase         String?
+  autor         String?
+  instagram     String?   @default("https://instagram.com/cortedarainha")
+  whatsapp      String?   @default("https://wa.me/555391081395")
+  status        String    @default("publicado")
+  acessosCount  Int       @default(0)
+  visualizadoEm DateTime?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+}
+
+model AccessLog {
+  id        String   @id @default(uuid())
+  clienteId String?
+  cliente   Client?  @relation(fields: [clienteId], references: [id], onDelete: SetNull)
+  ip        String?
+  userAgent String?
+  sucesso   Boolean
+  motivo    String?
+  criadoEm  DateTime @default(now())
+}

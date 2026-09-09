@@ -1,0 +1,39 @@
+# Dependencies
+/node_modules
+/.pnp
+.pnp.js
+
+# Next.js build output
+/.next/
+/out/
+/build
+
+# Environment files
+.env
+.env*.local
+.env.production
+
+# Debug logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Operating System files
+.DS_Store
+Thumbs.db
+*.pem
+
+# TypeScript
+*.tsbuildinfo
+
+# Legacy archives and static HTML folders (now dynamic Next.js routes)
+*.zip
+index.html
+/lafrontera/
+/lauraberthulinebeauty/
+/marianagarrastazu.art/
+
+# Temporary test artifacts
+scratch/
+.tempmediaStorage/
+.user_uploaded/

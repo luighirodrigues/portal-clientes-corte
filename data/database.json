@@ -1,0 +1,64 @@
+{
+  "admin": {
+    "email": "admin@cortedarainha.com.br",
+    "senhaHash": "admin123"
+  },
+  "clients": [
+    {
+      "id": "client-laura",
+      "nome": "Laura Berthuline",
+      "slug": "lauraberthulinebeauty",
+      "pin": "1234",
+      "whatsapp": "555391081395",
+      "fotoPerfil": "/uploads/laura.jpg",
+      "criadoEm": "2026-09-06T20:03:53.859Z"
+    },
+    {
+      "id": "client-mariana",
+      "nome": "Mariana Garrastazu",
+      "slug": "marianagarrastazu.art",
+      "pin": "1234",
+      "whatsapp": "555391081395",
+      "fotoPerfil": "/uploads/mariana.jpg",
+      "criadoEm": "2026-09-06T20:03:53.859Z"
+    }
+  ],
+  "deliveries": [
+    {
+      "id": "del-laura-1",
+      "clienteId": "client-laura",
+      "data": "29 de Agosto",
+      "videos": "125",
+      "fotos": "0",
+      "horas": "2h",
+      "fotoCapa": "/uploads/laura.jpg",
+      "linkDrive": "https://drive.google.com/drive/folders/1Jd7w_kYt5TAx0ne6wFCla0pNelCJLt5H?usp=drive_link",
+      "frase": "Criatividade não acaba. Quanto mais você usa, mais você tem.",
+      "autor": "Maya Angelou",
+      "instagram": "https://instagram.com/cortedarainha",
+      "whatsapp": "https://wa.me/555391081395",
+      "status": "publicado",
+      "acessosCount": 2,
+      "criadoEm": "2026-09-06T20:03:53.859Z",
+      "visualizadoEm": "2026-09-06T20:04:04.128Z"
+    },
+    {
+      "id": "del-mariana-1",
+      "clienteId": "client-mariana",
+      "data": "02 de setembro",
+      "videos": "9",
+      "fotos": "170",
+      "horas": "2h",
+      "fotoCapa": "/uploads/mariana.jpg",
+      "linkDrive": "https://drive.google.com/drive/folders/1vakHSAW5iY23dREux4dkTCCzBAFdJ0dL?usp=drive_link",
+      "frase": "Criatividade não acaba. Quanto mais você usa, mais você tem.",
+      "autor": "Maya Angelou",
+      "instagram": "https://instagram.com/cortedarainha",
+      "whatsapp": "https://wa.me/555391081395",
+      "status": "publicado",
+      "acessosCount": 1,
+      "criadoEm": "2026-09-06T20:03:53.859Z",
+      "visualizadoEm": "2026-09-06T20:54:29.617Z"
+    }
+  ]
+}
