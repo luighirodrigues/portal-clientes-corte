@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { Client, Delivery } from '@/lib/types';
 import { ArrowRight, Calendar, ExternalLink, Sparkles } from 'lucide-react';
@@ -14,6 +14,15 @@ export default function ClientDeliveryView({ client, deliveries }: ClientDeliver
   const [selectedDeliveryIndex, setSelectedDeliveryIndex] = useState(0);
 
   const delivery = deliveries[selectedDeliveryIndex] || deliveries[0];
+
+  const defaultPhoto = '/uploads/laura.jpg';
+  const rawFoto = (delivery?.fotoCapa && delivery.fotoCapa.trim()) || (client.fotoPerfil && client.fotoPerfil.trim()) || defaultPhoto;
+  const [fotoSrc, setFotoSrc] = useState(rawFoto);
+
+  useEffect(() => {
+    const updated = (delivery?.fotoCapa && delivery.fotoCapa.trim()) || (client.fotoPerfil && client.fotoPerfil.trim()) || defaultPhoto;
+    setFotoSrc(updated);
+  }, [delivery?.fotoCapa, client.fotoPerfil]);
 
   // Caso ainda não haja entregas publicadas
   if (!delivery) {
@@ -31,7 +40,6 @@ export default function ClientDeliveryView({ client, deliveries }: ClientDeliver
   }
 
   const primeiroNome = client.nome.split(' ')[0];
-  const fotoSrc = delivery.fotoCapa || client.fotoPerfil || '/uploads/laura.jpg';
   const tickerItem = `✦ captação de ${delivery.data} ✦ ${delivery.videos} vídeos ✦ ${delivery.fotos} fotos ✦ não é sorte, é gestão `;
 
   return (
@@ -91,6 +99,11 @@ export default function ClientDeliveryView({ client, deliveries }: ClientDeliver
           <img
             src={fotoSrc}
             alt={`Foto de ${client.nome}`}
+            onError={() => {
+              if (fotoSrc !== defaultPhoto) {
+                setFotoSrc(defaultPhoto);
+              }
+            }}
             className="w-full h-full object-cover object-center anim-revelar"
           />
           {/* Degradê sobre a imagem */}

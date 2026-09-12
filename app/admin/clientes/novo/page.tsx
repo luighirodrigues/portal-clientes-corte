@@ -12,6 +12,7 @@ export default function NovoClientePage() {
   const [pin, setPin] = useState(generateRandomPin());
   const [whatsapp, setWhatsapp] = useState('');
   const [fotoPerfil, setFotoPerfil] = useState('');
+  const [previewUrl, setPreviewUrl] = useState('');
   const [uploading, setUploading] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -36,6 +37,10 @@ export default function NovoClientePage() {
     const file = e.target.files?.[0];
     if (!file) return;
 
+    // Preview local instantâneo
+    const localUrl = URL.createObjectURL(file);
+    setPreviewUrl(localUrl);
+
     setUploading(true);
     setError(null);
 
@@ -52,11 +57,14 @@ export default function NovoClientePage() {
         setFotoPerfil(data.url);
       } else {
         setError(data.error || 'Erro no upload da foto.');
+        setPreviewUrl('');
       }
     } catch (err) {
       setError('Erro ao enviar imagem.');
+      setPreviewUrl('');
     } finally {
       setUploading(false);
+      e.target.value = '';
     }
   };
 
@@ -209,21 +217,26 @@ export default function NovoClientePage() {
             </label>
             <div className="flex items-center gap-4">
               <div className="relative w-16 h-16 rounded-2xl overflow-hidden border border-linha bg-areia-2 flex items-center justify-center shrink-0">
-                {fotoPerfil ? (
+                {(previewUrl || fotoPerfil) ? (
                   <img
-                    src={fotoPerfil}
+                    src={previewUrl || fotoPerfil}
                     alt="Preview"
-                    className="w-full h-full object-cover"
+                    className={`w-full h-full object-cover transition-opacity ${uploading ? 'opacity-50' : 'opacity-100'}`}
                   />
                 ) : (
                   <span className="text-xs text-cinza font-medium">Sem foto</span>
+                )}
+                {uploading && (
+                  <div className="absolute inset-0 bg-preto/30 flex items-center justify-center">
+                    <div className="w-5 h-5 border-2 border-branco border-t-transparent rounded-full animate-spin" />
+                  </div>
                 )}
               </div>
 
               <div className="flex-1 space-y-2">
                 <label className="inline-flex items-center gap-2 py-2.5 px-4 rounded-xl border border-linha bg-branco hover:bg-areia-2 text-preto text-xs font-bold cursor-pointer transition-colors">
                   <Upload className="w-3.5 h-3.5 text-magenta" />
-                  <span>{uploading ? 'Enviando...' : 'Fazer upload de foto'}</span>
+                  <span>{uploading ? 'Enviando foto...' : 'Fazer upload de foto'}</span>
                   <input
                     type="file"
                     accept="image/*"
@@ -235,7 +248,10 @@ export default function NovoClientePage() {
                 <input
                   type="text"
                   value={fotoPerfil}
-                  onChange={(e) => setFotoPerfil(e.target.value)}
+                  onChange={(e) => {
+                    setFotoPerfil(e.target.value);
+                    setPreviewUrl('');
+                  }}
                   placeholder="Ou cole a URL direta da imagem aqui"
                   className="w-full px-3 py-2 rounded-xl border border-linha bg-branco text-preto text-xs"
                 />

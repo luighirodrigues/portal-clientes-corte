@@ -48,6 +48,7 @@ export default function AdminDashboardPage() {
   const [editFotoPerfil, setEditFotoPerfil] = useState('');
   const [editSaving, setEditSaving] = useState(false);
   const [editUploading, setEditUploading] = useState(false);
+  const [editPreviewUrl, setEditPreviewUrl] = useState('');
   const [editError, setEditError] = useState<string | null>(null);
 
   const handleOpenEdit = (client: ClientWithStats) => {
@@ -57,6 +58,7 @@ export default function AdminDashboardPage() {
     setEditPin(client.pin);
     setEditWhatsapp(client.whatsapp || '');
     setEditFotoPerfil(client.fotoPerfil || '');
+    setEditPreviewUrl('');
     setEditError(null);
   };
 
@@ -67,6 +69,10 @@ export default function AdminDashboardPage() {
   const handleEditFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
+
+    // Preview local instantâneo
+    const localUrl = URL.createObjectURL(file);
+    setEditPreviewUrl(localUrl);
 
     setEditUploading(true);
     setEditError(null);
@@ -84,11 +90,14 @@ export default function AdminDashboardPage() {
         setEditFotoPerfil(data.url);
       } else {
         setEditError(data.error || 'Erro no upload da foto.');
+        setEditPreviewUrl('');
       }
     } catch {
       setEditError('Erro ao enviar imagem.');
+      setEditPreviewUrl('');
     } finally {
       setEditUploading(false);
+      e.target.value = '';
     }
   };
 
@@ -325,17 +334,17 @@ export default function AdminDashboardPage() {
               >
                 <div className="flex items-start justify-between gap-2.5">
                   <div className="flex items-center gap-3 min-w-0 flex-1">
-                    <div className="relative w-12 h-12 rounded-full overflow-hidden border border-linha bg-branco shrink-0">
-                      {client.fotoPerfil ? (
+                    <div className="relative w-12 h-12 rounded-full overflow-hidden border border-linha bg-areia-2 shrink-0 flex items-center justify-center font-bold text-cinza">
+                      <span className="text-sm">{client.nome[0]}</span>
+                      {client.fotoPerfil && (
                         <img
                           src={client.fotoPerfil}
                           alt={client.nome}
-                          className="w-full h-full object-cover"
+                          className="absolute inset-0 w-full h-full object-cover"
+                          onError={(e) => {
+                            (e.currentTarget as HTMLImageElement).style.display = 'none';
+                          }}
                         />
-                      ) : (
-                        <div className="w-full h-full flex items-center justify-center font-bold text-cinza bg-areia-2">
-                          {client.nome[0]}
-                        </div>
                       )}
                     </div>
 
@@ -708,19 +717,28 @@ export default function AdminDashboardPage() {
                 </label>
                 <div className="flex items-center gap-3">
                   <div className="relative w-12 h-12 rounded-xl overflow-hidden border border-linha bg-areia-2 shrink-0">
-                    {editFotoPerfil ? (
-                      <img src={editFotoPerfil} alt="Preview" className="w-full h-full object-cover" />
+                    {(editPreviewUrl || editFotoPerfil) ? (
+                      <img
+                        src={editPreviewUrl || editFotoPerfil}
+                        alt="Preview"
+                        className={`w-full h-full object-cover transition-opacity ${editUploading ? 'opacity-50' : 'opacity-100'}`}
+                      />
                     ) : (
                       <span className="text-[10px] text-cinza flex items-center justify-center h-full">Sem foto</span>
+                    )}
+                    {editUploading && (
+                      <div className="absolute inset-0 bg-preto/30 flex items-center justify-center">
+                        <div className="w-4 h-4 border-2 border-branco border-t-transparent rounded-full animate-spin" />
+                      </div>
                     )}
                   </div>
                   <div className="flex-1 space-y-1.5">
                     <label className="inline-flex items-center gap-1.5 py-1.5 px-3 rounded-lg border border-linha bg-branco hover:bg-areia-2 text-preto text-xs font-bold cursor-pointer transition-colors">
                       <Upload className="w-3.5 h-3.5 text-magenta" />
-                      <span>{editUploading ? 'Enviando...' : 'Trocar foto'}</span>
+                      <span>{editUploading ? 'Enviando foto...' : 'Trocar foto'}</span>
                       <input
                         type="file"
-                        accept="image/jpeg,image/png,image/webp"
+                        accept="image/jpeg,image/png,image/webp,image/avif"
                         onChange={handleEditFileUpload}
                         className="hidden"
                         disabled={editUploading}
@@ -729,7 +747,10 @@ export default function AdminDashboardPage() {
                     <input
                       type="text"
                       value={editFotoPerfil}
-                      onChange={(e) => setEditFotoPerfil(e.target.value)}
+                      onChange={(e) => {
+                        setEditFotoPerfil(e.target.value);
+                        setEditPreviewUrl('');
+                      }}
                       placeholder="Ou cole a URL direta"
                       className="w-full px-3 py-1.5 rounded-lg border border-linha bg-branco text-preto text-xs"
                     />

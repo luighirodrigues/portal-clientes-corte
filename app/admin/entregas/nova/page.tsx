@@ -42,6 +42,7 @@ function NovaEntregaForm() {
   const [horas, setHoras] = useState('2h');
   const [linkDrive, setLinkDrive] = useState('');
   const [fotoCapa, setFotoCapa] = useState('');
+  const [previewCapaUrl, setPreviewCapaUrl] = useState('');
   const [frase, setFrase] = useState(SUGGESTED_QUOTES[0].frase);
   const [autor, setAutor] = useState(SUGGESTED_QUOTES[0].autor);
   const [uploading, setUploading] = useState(false);
@@ -72,6 +73,10 @@ function NovaEntregaForm() {
     const file = e.target.files?.[0];
     if (!file) return;
 
+    // Preview local instantâneo
+    const localUrl = URL.createObjectURL(file);
+    setPreviewCapaUrl(localUrl);
+
     setUploading(true);
     setError(null);
 
@@ -88,11 +93,14 @@ function NovaEntregaForm() {
         setFotoCapa(resData.url);
       } else {
         setError(resData.error || 'Erro no upload da foto.');
+        setPreviewCapaUrl('');
       }
     } catch (err) {
       setError('Erro ao enviar imagem.');
+      setPreviewCapaUrl('');
     } finally {
       setUploading(false);
+      e.target.value = '';
     }
   };
 
@@ -238,21 +246,26 @@ function NovaEntregaForm() {
           </label>
           <div className="flex items-center gap-4">
             <div className="relative w-16 h-16 rounded-2xl overflow-hidden border border-linha bg-areia-2 flex items-center justify-center shrink-0">
-              {fotoCapa ? (
+              {(previewCapaUrl || fotoCapa) ? (
                 <img
-                  src={fotoCapa}
+                  src={previewCapaUrl || fotoCapa}
                   alt="Preview"
-                  className="w-full h-full object-cover"
+                  className={`w-full h-full object-cover transition-opacity ${uploading ? 'opacity-50' : 'opacity-100'}`}
                 />
               ) : (
                 <span className="text-xs text-cinza font-medium">Padrão</span>
+              )}
+              {uploading && (
+                <div className="absolute inset-0 bg-preto/30 flex items-center justify-center">
+                  <div className="w-5 h-5 border-2 border-branco border-t-transparent rounded-full animate-spin" />
+                </div>
               )}
             </div>
 
             <div className="flex-1 space-y-2">
               <label className="inline-flex items-center gap-2 py-2.5 px-4 rounded-xl border border-linha bg-branco hover:bg-areia-2 text-preto text-xs font-bold cursor-pointer transition-colors">
                 <Upload className="w-3.5 h-3.5 text-magenta" />
-                <span>{uploading ? 'Enviando...' : 'Fazer upload de foto'}</span>
+                <span>{uploading ? 'Enviando foto...' : 'Fazer upload de foto'}</span>
                 <input
                   type="file"
                   accept="image/*"
@@ -264,7 +277,10 @@ function NovaEntregaForm() {
               <input
                 type="text"
                 value={fotoCapa}
-                onChange={(e) => setFotoCapa(e.target.value)}
+                onChange={(e) => {
+                  setFotoCapa(e.target.value);
+                  setPreviewCapaUrl('');
+                }}
                 placeholder="Ou cole a URL direta da foto aqui"
                 className="w-full px-3 py-2 rounded-xl border border-linha bg-branco text-preto text-xs"
               />
